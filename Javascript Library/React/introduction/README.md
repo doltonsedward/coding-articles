@@ -4,8 +4,16 @@ React adalah library JavaScript yang digunakan untuk membangun antarmuka panggun
 
 > Saat artikel ini ditulis, React sangat populer dengan 178k bintang di [Github](https://github.com/facebook/react) dan masih banyak yang gunakan sampai sekarang
 
+## Introduction
+React JS adalah _open source client-side library_ dan _gratis_ untuk membangun Antarmuka Pengguna atau komponen UI yang dinamis. Komponen adalah kombinasi kode HTML dan JavaScript yang berisi semua fungsi yang diperlukan untuk menampilkan bagian kecil dari antarmuka pengguna yang lebih besar
+
+React membuat semuanya sebagai komponen. Komponen dapat membuat HTTP requrest dan memuat data tanpa memuat ulang halaman. Ini disebut sebagai V dalam MVC. Stack Overflow Insights dari tahun 2021 menyatakan bahwa React adalah yang paling dicari, diinginkan oleh satu dari empat pengembang. [Insights 2021](https://insights.stackoverflow.com/survey/2021#web-frameworks)
+
+## React adalah Library, bukan Framework
+React JS secara teknis adalah library, bukan framework karena tidak memiliki beberapa hal penting yang disertakan oleh framework seperti Router, HTTP, dll. Misalnya, React tidak memiliki mekanisme routing di intinya, tetapi kita dapat menginstal itu menggunakan package manager, atau React menggunakan fetch API JavaScript asli
+
 ## Render Hello World dengan JavaScript
-Mari kita lihat bagaimana me rener Hello World menggunakan JavaScript.
+Mari kita lihat bagaimana merender Hello World menggunakan JavaScript.
 
 Dimulai dari membuat satu `div` dengan `id` sebagai `root`
 ```html
@@ -38,3 +46,102 @@ Kode diatas akan menghasilkan HTML seperti berikut
     <div class="container">Hello World</div>
 </div>
 ```
+
+## Render Hello World dengan React APIs
+Sekarang mari kita coba menggunakan React API untuk membuat markup yang kita butuhkan daripada menggunakan JavaScript murni (vanilla).
+
+Kita membutuhkan dua API penting untuk mencapai tugas kita. Dalam vanilla JavaScript. mereka:
+```javascript
+document.createElement()
+rootElement.append(domElement)
+```
+
+Versi React API
+```javascript
+React.createElement()
+ReactDOM.render(reactElement, rootElement)
+```
+
+Mari lihat juga `React.createElement()` dengan lebih detail.
+
+### React.createElement()
+`React.createElement()` membutuhkan dua tiga parameter:
+1. Komponen atau Tag yang akan digunakan untuk membuat element
+2. Props untuk komponen
+3. Children, Anak dari komponen
+
+API ini kelihatannya seperti ini `React.createElement(component, props, ...children)`.
+Jadi, untuk membuat element seperti `<div class="container">Hello World</div>`, kode nya bisa seperti ini
+```javascript
+React.createELement('div', { className: "container" }, "Hello World")
+```
+
+<br />
+
+Di HTML kita butuh
+```javascript
+<div id="root"></div>
+```
+
+<br />
+
+Untuk menambahkan `<div class="container">Hello World</div>` ke element root menggunakan React, we bisa seperti ini:
+```javascript
+const rootElement = document.getElementById('root')
+
+const divElement = React.createElement('div', { className: 'container' }, 'Hello World')
+
+ReactDOM.render(divElement, rootElement)
+```
+
+<br />
+
+Nah, dari yang kita buat diatas, kamu pasti bisa melihat kemiripan React API dengan DOM API pada JavaScript murni (vanilla).
+
+Perlu diperhatikan, kita bahkan dapat membuat elemen bersarang menggunakan ini.
+
+Sebagai contoh, mari coba membuat markup berikut.
+```html
+<div class="container">
+    <span>Hello</span>
+    <span>World</span>
+</div>
+```
+
+Untuk membuat markup diatas
+```javascript
+const rootElement = document.getElementById('root')
+
+const helloElement = React.createElement('span', null, 'Hello')
+const worldElement = React.createElement('span', null, 'World')
+const divElement = React.createElement('div', { className: 'container' }, helloElement, worldElement)
+
+ReactDOM.render(divElement, rootElement)
+```
+
+<br />
+
+Kita bahkan bisa menggunakan properti `children` untuk menambahkan anak komponen seperti berikut.
+```javascript
+React.createElement('div', {
+    className: 'container', 
+    children: [helloElement, worldElement]
+})
+```
+
+<br />
+
+Bahkan bisa seperti ini
+```javascript
+React.createElement('div', { className: 'container' }, helloElement, worldElement)
+```
+
+## Menggunakan JSX
+Jika kamu sudah menggunakan React atau melihat kode React kapan saja, kemungkinan besar kamu tidak akan melihat `React.createElement` digunakan. Sebagai gantinya, kamu mungkin telah melihat beberapa kode yang terlihat mirip dengan HTML. Mari kita lihat apa itu.
+```javascript
+const divElement = <div id='container'>Hello World</div>
+```
+
+<br />
+
+Tapi perlu di ingat, JSX bukanlah kode JavaScript yang valid, jadi kita menggunakan kompiler yang disebut `Babel`

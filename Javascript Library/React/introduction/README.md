@@ -5,10 +5,10 @@ React adalah library JavaScript yang digunakan untuk membangun antarmuka panggun
 
 <br />
 
-## Introduction
+## Pengantar
 React JS adalah _open source client-side library_ dan _gratis_ untuk membangun Antarmuka Pengguna atau komponen UI yang dinamis. Komponen adalah kombinasi kode HTML dan JavaScript yang berisi semua fungsi yang diperlukan untuk menampilkan bagian kecil dari antarmuka pengguna yang lebih besar
 
-React membuat semuanya sebagai komponen. Komponen dapat membuat HTTP requrest dan memuat data tanpa memuat ulang halaman. Ini disebut sebagai V dalam MVC. Stack Overflow Insights dari tahun 2021 menyatakan bahwa React adalah yang paling dicari, diinginkan oleh satu dari empat pengembang. [Insights 2021](https://insights.stackoverflow.com/survey/2021#web-frameworks)
+React membuat semuanya sebagai komponen. Komponen dapat membuat HTTP request dan memuat data tanpa memuat ulang halaman keseluruhan. Ini disebut sebagai V dalam MVC. Stack Overflow Insights dari tahun 2021 menyatakan bahwa React adalah yang paling dicari, diinginkan oleh satu dari empat pengembang. [Insights 2021](https://insights.stackoverflow.com/survey/2021#web-frameworks)
 
 <br />
 
@@ -76,6 +76,8 @@ ReactDOM.render(reactElement, rootElement)
 ```
 
 Mari lihat juga `React.createElement()` dengan lebih detail.
+
+<br />
 
 ### React.createElement()
 `React.createElement()` membutuhkan dua tiga parameter:
@@ -145,7 +147,7 @@ React.createElement('div', {
 <br />
 
 Bahkan bisa seperti ini
-```javascript
+```jsx
 React.createElement('div', { className: 'container' }, helloElement, worldElement)
 ```
 
@@ -210,7 +212,7 @@ Kamu bahkan bisa membuat kondisi dan perulangan pada JSX
 Seperti yang kamu lihat diatas, dengan mudah kita juga bisa menggunakan conditional dalam JSX. Ini akan sering kalian lakukan dan temui dalam project yang menggunakan **React Js**.
 
 Bagaimana dengan perulangan ?
-```javascript
+```jsx
 {items.map(item => <div key={item.id}>{item.title}</div>)}
 ```
 
@@ -241,5 +243,267 @@ Pada kode diatas kamu bisa melihat `<div className="message"></div>` dibuat dua 
 Untuk menghindari duplikasi, hal paling sederhana yang bisa kita lakukan adalah membuat fungsi dan kemudian memanggilnya.
 
 ```jsx
-function message(prop)
+const message = (text) => {
+    return <div className="message">{text}</div>
+}
 ```
+
+```jsx
+<div className="container">
+    {message('Hello World')}
+    {message('Goodbye World')}
+</div>
+```
+
+<br />
+
+Mari refactor sedikit dengan menggunakan object destructuring
+
+```jsx
+function message({ children }) {
+    return <div className="message">{children}</div>
+}
+```
+
+```jsx
+<div className="container">
+    {message({ children: 'Hello World' })}
+    {message({ children: 'Goodbye World' })}
+</div>
+```
+
+<br />
+
+Bahkan bisa di refactor lagi dengan menggunakan `React.createElement`
+```jsx
+function message({children}) {
+    return <div className="message">{children}</div>
+}
+```
+```jsx
+<div className="container">
+    {React.createElement(message, null, 'Hello World')}
+    {React.createElement(message, null, 'Goodbye World')}
+</div>
+```
+
+<br />
+
+Sebelumnya di semua contoh yang telah kita lihat, argumen pertama dari `React.createElement()` adalah string yang berisi nama elemen dari tag HTML seperti `span` atau `div`
+
+Tetapi React.createElement juga menerima fungsi yang mengembalikan sesuatu yang dapat dirender seperti JSX, beberapa string, angka dll. 
+
+Itu alasan kenapa kode diatas bisa bekerja, karena pada dasarnya sama saja perilakunya
+
+Sekarang mari kita coba untuk konversikan kode diatas ke JSX
+```jsx
+function message({children}) {
+    return <div className="message">{children}</div>
+}
+```
+
+```jsx
+<div className="container">
+    <message>Hello World</message>
+    <message>Goodbye World</message>
+</div>
+```
+
+<br />
+
+Kalau di lihat dari kode diatas, seperti nya sudah sempurna. Kalau kamu berpikir seperti itu maka jawabannya tidak. Kode diatas tidak akan berfungsi sebagaimana mestinya. Alasannya adalah bagaimana babel mengkompilasi kode JSX ke kode `React.createELement()` yang valid
+
+`<message />` di kompilasi oleh babel ke `React.createELement('message')`. Tapi yang kita inginkan adalah `React.createElement(message)`. Dalam kasus pertama, argumen pertama adalah string, dalam kasus kedua, itu adalah fungsi
+
+Agar babel mengubahnya menjadi apa yang kita butuhkan, kita harus membuat nama depan dari fungsi `message` menjadi huruf besar
+```jsx
+function Message({children}) {
+    return <div className="message">{children}</div>
+}
+```
+```jsx
+<div className="container">
+    <Message>Hello World</Message>
+    <Message>Goodbye World</Message>
+</div>
+```
+
+<br />
+
+Sekarang `<Message>Hello World</Message>` ini akan dikompilasi ke `React.createElement(Message, { children: 'Hello World' })`, yang persis seperti yang kita kita butuhkan
+
+JSX | React.createElement() 
+:--- | :--- |
+`<Capitalized />` | `React.createElement(Capitalized)` 
+`<property.access />` | `React.createElement(property.access)` 
+`<Property.Access />` | `React.createElement(Property.Access)` 
+`<Property['Access'] />` | `SyntaxError` 
+`<lowercase />` | `React.createElement('lowercase')` 
+`<kebab-case />` | `React.createElement('kebab-case')` 
+`<Upper-Kebab-Case />` | `React.createElement('Upper-Kebab-Case')` 
+`<Upper_Snake_Case />` | `React.createElement(Upper_Snake_Case)` 
+`<lower_snake_case />` | `React.createElement('lower_snake_case')`
+
+Jadi, kita dapat melihat bahwa nama komponen harus **_UpperCamelCased_** agar berfungsi sebagaimana dimaksud.
+
+## PropTypes
+Mari refactor sedikit komponen `<Message />` sebelumnya sehingga menerima nama prop.
+```jsx
+function Message({ name }) {
+    return <div className="message">Hi, my name is {name}.</div>
+}
+```
+```jsx
+<Message name='John Doe' />
+<Message />
+```
+
+<br />
+
+Hasil kode diatas.
+```
+Hi, my name is John Doe.
+Hi, my name is .
+```
+
+<br />
+
+Seperti yang kalian lihat yg diberikan properti name akan menampilkan output seperti pada nilai dari properti tersebut sedangkan yang tidak mengisi properti sama sekali akan tetap tampil tapi tanpa nama. 
+
+Tentunya ini tidak terlihat bagus. Untungnya, React memberi kita cara untuk menetapkan properti nya harus berupa tipe apapun yang kita buat menggunakan `PropTypes`.
+
+Mari buat `PropTypes` untuk menerapkan tpe `name` menjadi sring
+```jsx
+const PropTypes = {
+    string(props, propName, componentName) {
+        if (typeof props[propName] !== 'string') {
+            return new Error(`In component ${componentName}, ${propName} needs to be a string, but it was of type ${typeof props[propName]}`)
+        }
+    },
+}
+
+function Message({ name }) {
+    return <div className="message">Hi, your name is {name}.</div>
+}
+
+Message.propTypes = {
+    name: PropTypes.string,
+}
+```
+
+<br />
+
+Sekarang setiap kali kita melewatkan apa pun selain string untuk prop `name`, itu menimbulkan kesalahan.
+
+Karena kasus seperti ini sangat umum, tim React mengembangkan library yang disebut [prop-types](https://github.com/facebook/prop-types) yang dapat kita gunakan dengan cara yang sama - PropTypes.string.isRequired. Lihat [repo ini](https://github.com/facebook/prop-types) untuk lebih jelasnya.
+
+Perhatikan bahwa PropTypes akan dinonaktifkan di lingkungan produksi karena alasan kinerja
+
+## React Fragments
+Yang satu ini saya pikir masih sering dan pasti akan dipakai sampai sekarang. Kita secara sadar saat bekerja dengan JSX tidak akan bisa me render semua elemen sekaligus, minimal ada satu `parent element`
+
+Sebagai contoh mari coba buat dari markup nya dulu
+```jsx
+<div id='root'>
+    <span>Hello</span>
+    <span>World</span>
+</div>
+```
+
+<br />
+
+Kode nya akan seperti ini jika kita mencoba membuatnya
+```jsx
+const rootElement = document.getElementById('root')
+
+const elementOne = React.createElement('span', null, 'Hello')
+const elementTwo = React.createElement('span', null, 'World')
+
+ReactDOM.render(????, rootElement)
+```
+
+<br />
+
+Sekarang apa yang harus di tempatkan pada `????` di baris terakhir?. Itu tidak bisa berisi elementOne atau elementTwo, karena kita ingin keduanya di render (bukan hanya satu). Tetapi ReactDOM.render() hanya mengambil satu elemen react sebagai argumen dan kemudian menambahkannya ke rootElement 
+
+Salah satu cara untuk mencapai ini adalah jika kita dapat membungkus kedua elmeen dalam elemen baru.
+```jsx
+const rootElement = document.getElementById('root')
+
+const elementOne = React.createElement('span', null, 'Hello')
+const elementTwo = React.createElement('span', null, 'World')
+
+const combinedElement = React.createElement('div', null, elementOne, elementTwo)
+
+ReactDOM.render(combinedElement, rootElement)
+```
+
+<br />
+
+Kode diatas mungkin terlihat bagus, tapi menghasilkan HTML yang berbeda dari yang kita butuhkan
+
+Kode diatas akan di render seperti ini.
+```jsx
+<div id='root'>
+    <div>
+        <span>Hello</span>
+        <span>World</span>
+    </div>
+</div>
+```
+
+<br />
+
+Ini yang menjadi alasan kenapa kita tidak boleh menggunakan kode seperti berikut
+```jsx
+function Message() {
+    return <span>Hello</span><span>World</span>
+}
+```
+
+<br />
+
+Karena tidak ada cara bagi babel untuk dapat mengkonversikan ini menjadi satu `React.createElement()`
+
+`React Fragments` diperkenalkan di [React v16.2.0](https://github.com/facebook/react/blob/main/CHANGELOG.md#1620-november-28-2017) untuk memecahkan masalah ini. Sekarang kamu dapat mengembalikan beberapa elemen hanya dengan menggungkusnya dengan React.Fragment
+
+Sebagai contoh.
+```jsx
+function Message() {
+    return (
+        <React.Fragment>
+            <span>Hello</span>
+            <span>World</span>
+        </React.Fragment>
+    )
+}
+```
+
+Semenjak berkembangnya React, kita bisa juga gunakan ini sebagai alternative `React.Fragment` 
+
+```jsx
+function Message() {
+    return (
+        <>
+            <span>Hello</span>
+            <span>World</span>
+        </>
+    )
+}
+```
+
+<br />
+
+## Kesimpulan
+Apa yang sudah kita pelajari tadi?
+
+* Asal usul React, siapa yang buat dan apa fungsi nya
+* Perbandingan cara merender JavaScript murni dengan React API
+* Perkenalan dan cara gunakan JSX
+* Interpolasi dalam JavaScript
+* Cara gunakan kondisi dan perulangan pada JSX
+* Membuat custom component
+* Apa itu PropTypes dan cara gunakannya
+* React.Fragment
+
+Ada banyak sekali library atau bahkan framework yang bisa kalian gunakan. Semua hadir dengan keunggulan masing-masing. Tetaplah pelajari tentang teknologi yang ingin kamu gunakan pada saat ini. Gunakan dengan bijak, karena pada dasarnya library dibuat untuk mempermudah kita. 

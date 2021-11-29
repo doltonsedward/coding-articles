@@ -211,6 +211,8 @@ store.dispatch({
 })
 ```
 
+<br />
+
 Yang pertama jika kondisi di dalam fungsi reducer akan dieksekusi. Ini akan menambah nilai state ke 1 yang awalnya diinisialisasi ke 0 menggunakan sintaks parameter default ES6. Kemudian akan dikembalikan dari fungsi reducer.
 
 **Perhatikan bahwa kita menggunakan nilai state untuk menghitung nilai baru dan kita tidak mengubah nilai state asli seperti ini:**
@@ -227,3 +229,148 @@ if (action.type === 'INCREMENT') {
 Jadi kode di atas tidak benar, karena di reducer kita tidak boleh mengubah keadaan aslinya. Melakukan hal tersbut hanya akan membuat masalah dalam aplikasi kita sehingga tidak disarankan.
 
 Dan karena kita telah menambahkan fungsi `store.subscribe` di file index.js, kita mendapat pemberitahuan tentang store yang berubah dengan kita dapat melihat log di konsol.
+
+Jadi ketika kita memanggil lagi dispatch dengan tipe INCREMENT, kondisi if pertama akan dieksekusi kembali. Jadi itu akan menambahkan 1 ke nilai state sebelumnya yaitu 1, dan nilai state akhir akan menjadi 2.
+
+Kemudian kita mengirimkan action DECREMENT ke store seperti ini
+
+```javascript
+store.dispatch({
+  type: 'DECREMENT'
+})
+```
+
+<br />
+
+Kode diatas akan mengeksekusi kondisi else if di dalam reducer dan akan mengurangi nilai state sebesar 1 (jadi 2 - 1 akan menjadi 1).
+
+Perhatikan bahwa di dalam reducer, kita juga mengembalikan state di akhir. Jadi jika tidak ada kondisi yang cocok, state default sebelumnya akan dikembalikan dari fungsi.
+
+Oke, dari kode diatas sepertinya sudah keliatan sempurna. Tapi kalau kalian perhatikan kita menggunakan if..else padahal yang kita ingin kondisi kan hanya nilai dari action.type. 
+
+Cara paling umum dalam melakukan pengkondisian pada action.type dengan menggunakan pernyataan switch di dalam reducer daripada menggunakan kondisi if..else. Seperti ini kode nya:
+
+```javascript
+const reducer = (state = 0, action) => {
+  switch (action.type) {
+    case 'INCREMENT':
+      return state + 1
+    case 'DECREMENT':
+      return state - 1
+    default:
+      return state
+  }
+}
+```
+
+<br />
+
+Selain tipe, kita juga dapat menyampaikan informasi tambahan sebagai bagian dari action.
+
+Ganti isi file index.js dengan kode berikut:
+```javascript
+import { createStore } from 'redux';
+
+const reducer = (state = 0, action) => {
+  switch (action.type) {
+    case 'INCREMENT':
+      return state + action.payload;
+    case 'DECREMENT':
+      return state - action.payload;
+    default:
+      return state;
+  }
+};
+
+const store = createStore(reducer);
+
+store.subscribe(() => {
+  console.log('state saat ini', store.getState())
+})
+
+store.dispatch({
+  type: 'INCREMENT',
+  payload: 1
+})
+
+store.dispatch({
+  type: 'INCREMENT',
+  payload: 5
+})
+
+store.dispatch({
+  type: 'DECREMENT',
+  payload: 2
+})
+```
+
+<br />
+
+Sekarang jika kamu menjalankan aplikasi dengan menjalankan perintah `npm start` dari terminal, kamu akan melihat log berikut dicetak di konsol:
+
+<p style="text-align: center"><img width="350px" src="./ss-for-article4.jpg" /></p>
+
+Di sini, saat mengirimkan action ke store, kita memasukkan `payload` dengan beberapa nilai yang kita gunakan di dalam reducer untuk menambah atau mengurangi nilai store.
+
+Di sini, kita telah menggunakan payload sebagai nama properti tapi sebenarnya kamu dapat memberi nama apa pun yang kamu inginkan. Tapi disarankan selalu menggunakan nama yang umum agar tidak mempersulit yang lain untuk membaca kode kamu.
+
+Fungsi reducer kita sekarang seperti ini:
+```javascript
+const reducer = (state = 0, action) => {
+  switch (action.type) {
+    case 'INCREMENT':
+      return state + action.payload
+    case 'DECREMENT':
+      return state - action.payload
+    default:
+      return state
+  }
+}
+```
+
+<br />
+
+Jadi ketika kita mengirimkan action dengan jenis `INCREMENT` seperti ini:
+```javascript
+store.dispatch({
+  type: 'INCREMENT',
+  payload: 1
+})
+
+store.dispatch({
+  type: 'INCREMENT',
+  payload: 5
+})
+```
+
+<br />
+
+kode berikut dari reducer akan dieksekusi:
+```javascript
+return state + action.payload;
+```
+
+Ini pertama-tama akan menambahkan 1 dan kemudian 5 ke nilai state sebelumnya, jadi kita beralih dari 1 ke 6. Dan karena jenis action DECREMENT:
+
+```javascript
+store.dispatch({
+  type: 'DECREMENT',
+  payload: 2
+});
+```
+
+<br />
+
+Store kita yang awalnya 6 sekarang menjadi 4. Jadi nilai akhir store akan menjadi 4.
+
+## Kesimpulan
+Apa yang sudah kita pelajari tadi?
+
+* Kenalan dengan reducer, action, dan store
+* Cara membuat store dan reducer
+* Cara mengirim action ke store dan mengelola action
+* Cara mendapatkan informasi state saat ini
+
+For your information, Dalam react ada namanya `createContext`. Jadi by default react juga bisa mengelola state, hanya Redux muncul untuk mempermudah dalam mengelola state dan membuat kode kita sedikit lebih bersih dan rapi. 
+
+Itu saja artikel kali ini, kalian bisa explore lebih tentang [Redux](http://redux.js.org/) atau mau mencoba `createContext` pada [React](https://reactjs.org/docs/context.html)

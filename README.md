@@ -4,3 +4,4 @@
 
 ## Articles about library 
 * Intro to react
+* Intro to redux
